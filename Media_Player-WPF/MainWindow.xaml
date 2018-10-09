@@ -1,0 +1,172 @@
+﻿<Window x:Class="Media_Player_WPF.MainWindow"
+        xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+        xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
+        xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+        xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+        mc:Ignorable="d"
+        StateChanged="MainWindow_StateChanged"
+        KeyUp="Window_KeyUp"
+        KeyDown="Window_KeyDown"
+        Title="Media Player" Width="1024" Height="576" >
+
+    <Window.CommandBindings>
+        <CommandBinding Command="ApplicationCommands.Open" CanExecute="Open_CanExecute" Executed="Open_Executed" />
+        <CommandBinding Command="MediaCommands.Play" CanExecute="Play_CanExecute" Executed="Play_Executed" />
+        <CommandBinding Command="MediaCommands.Pause" CanExecute="Pause_CanExecute" Executed="Pause_Executed" />
+        <CommandBinding Command="MediaCommands.Stop" CanExecute="Stop_CanExecute" Executed="Stop_Executed" />
+    </Window.CommandBindings>
+    <Window.Resources>
+        <converter:InverseBooleanConverter xmlns:converter="clr-namespace:Media_Player_WPF.Converters" x:Key="InverseBooleanConverter" />
+    </Window.Resources>
+
+    <Grid>
+        <Grid.RowDefinitions>
+            <RowDefinition Height="Auto" />
+            <RowDefinition Height="*" />
+        </Grid.RowDefinitions>
+        <StatusBar Background="#99000000" Name="Toolbar" IsHitTestVisible="True">
+            <Button Content="Open" Command="ApplicationCommands.Open"
+                    Focusable="False"
+                    Style="{DynamicResource StripButton}"/>
+            <Separator />
+            <Button Content="Play" Command="MediaCommands.Play"
+                    Focusable="False"
+                    Style="{DynamicResource StripButton}"/>
+            <Button Content="Pause" Command="MediaCommands.Pause"
+                    Focusable="False"
+                    Style="{DynamicResource StripButton}"/>
+            <Button Content="Stop" Command="MediaCommands.Stop"
+                    Focusable="False"
+                    Style="{DynamicResource StripButton}"/>
+            <Button Content="Subtitle" Click="SubtitleLoad_Click" Name="SubtitleButton" IsEnabled="False"
+                    Focusable="False"
+                    Style="{DynamicResource StripButton}"/>
+        </StatusBar>
+        <Grid Name="MediaPlayerGrid" Background="Black" Grid.Row="1" MouseWheel="Grid_MouseWheel" 
+              MouseLeftButtonDown="Grid_MouseLeftButtonDown"
+              AllowDrop="True" PreviewDragOver="MediaPlayerGrid_PreviewDragOver" Drop="MediaPlayerGrid_Drop">
+            <Grid.ContextMenu>
+                <ContextMenu Name="RightClickMenu">
+                    <MenuItem Header="Load Movie" Click="LoadMovie_Click"/>
+                    <MenuItem Header="Load Subtitle" Click="SubtitleLoad_Click" IsEnabled="False" Name="LoadSubtitleMenuItem"/>
+                    <MenuItem Header="Close" Click="CloseApplication_Click"/>
+                </ContextMenu>
+            </Grid.ContextMenu>
+            <MediaElement x:Name="MediaPlayer" LoadedBehavior="Manual" Stretch="Uniform" MediaOpened="MediaPlayer_MediaOpened" MediaEnded="MediaPlayer_MediaEnded"/>
+            <TextBlock Foreground="White"
+                       Margin="10,0,0,0"
+                       Text="OverlayTitle" 
+                       Name="TitleOverlay" 
+                       HorizontalAlignment="Left" 
+                       VerticalAlignment="Top" 
+                       FontSize="33"/>
+            <TextBlock Foreground="White"
+                       Margin="10,40,0,0"
+                       Text="OverlayLeft" 
+                       Name="LeftInfoOverlay" 
+                       HorizontalAlignment="Left" 
+                       VerticalAlignment="Top" 
+                       FontSize="22"/>
+            <TextBlock Foreground="White" 
+                       Text="OverlayRight"
+                       Name="RightInfoOverlay"
+                       HorizontalAlignment="Right" 
+                       VerticalAlignment="Top" 
+                       FontSize="22"/>
+            <!-- Subtitle Outline Method -->
+            <Grid Name="subGrid"
+                  HorizontalAlignment="Center"
+                  VerticalAlignment="Bottom"
+                  Margin="0,0,0,40"
+                  TextBlock.FontSize="36"
+                  TextBlock.TextAlignment="Center"
+                  TextBlock.FontWeight="Bold"
+                  TextBlock.Foreground="White">
+                <TextBlock Text="Subtitle"
+                           Name="SubtitleOverlay">
+                    <TextBlock.Effect>
+                        <DropShadowEffect Direction="0" ShadowDepth="3"/>
+                    </TextBlock.Effect>
+                </TextBlock>
+                <TextBlock Text="Subtitle"
+                           Name="SubtitleOverlay1"
+                           FontSize="{Binding ElementName=SubtitleOverlay, Path=FontSize}">
+                    <TextBlock.Effect>
+                        <DropShadowEffect Direction="90" ShadowDepth="3"/>
+                    </TextBlock.Effect>
+                </TextBlock>
+                <TextBlock Text="Subtitle"
+                           Name="SubtitleOverlay2"
+                           FontSize="{Binding ElementName=SubtitleOverlay, Path=FontSize}">
+                    <TextBlock.Effect>
+                        <DropShadowEffect Direction="180" ShadowDepth="3"/>
+                    </TextBlock.Effect>
+                </TextBlock>
+                <TextBlock Text="Subtitle"
+                           Name="SubtitleOverlay3"
+                           FontSize="{Binding ElementName=SubtitleOverlay, Path=FontSize}">
+                    <TextBlock.Effect>
+                        <DropShadowEffect Direction="270" ShadowDepth="3"/>
+                    </TextBlock.Effect>
+                </TextBlock>
+            </Grid>
+        </Grid>
+        <StatusBar Background="#40000000" Height="Auto" Name="Statusbar" Grid.Row="2" IsEnabled="False" VerticalAlignment="Bottom">
+            <StatusBar.ItemsPanel>
+                <ItemsPanelTemplate>
+                    <Grid>
+                        <Grid.ColumnDefinitions>
+                            <ColumnDefinition Width="Auto"/>
+                            <ColumnDefinition Width="Auto"/>
+                            <ColumnDefinition Width="*"/>
+                            <ColumnDefinition Width="Auto"/>
+                            <ColumnDefinition Width="Auto"/>
+                        </Grid.ColumnDefinitions>
+                    </Grid>
+                </ItemsPanelTemplate>
+            </StatusBar.ItemsPanel>
+            <StatusBarItem>
+                <TextBlock Name="lblProgressStatus" Foreground="White" FontWeight="Bold">--:--:-- / --:--:--</TextBlock>
+            </StatusBarItem>
+            <StatusBarItem Grid.Column="1">
+                <ToggleButton Name="cbPlay"
+                              Focusable="False"
+                              Width="20" Height="20"
+                              FontFamily="{StaticResource FontAwesome_Light}"
+                              IsChecked="False"
+                              Click="CbPlay_Click"
+                              Style="{DynamicResource PlayToggleButton}">
+                </ToggleButton>
+            </StatusBarItem>
+            <StatusBarItem Grid.Column="2" HorizontalContentAlignment="Stretch">
+                <Slider Name="sliProgress" 
+                        Focusable="False"
+                        Style="{StaticResource Horizontal_Slider}"
+                        IsMoveToPointEnabled="True" 
+                        Thumb.DragStarted="SliProgress_DragStarted"  
+                        Thumb.DragCompleted="SliProgress_DragCompleted" 
+                        ValueChanged="SliProgress_ValueChanged"/>
+            </StatusBarItem>
+            <StatusBarItem Grid.Column="3">
+                <ToggleButton Name="CbVolume"
+                              Focusable="False"
+                              Width="20" Height="20"
+                              FontFamily="{StaticResource FontAwesome_Light}"
+                              IsChecked="{Binding ElementName=MediaPlayer, Path=IsMuted}" 
+                              Style="{DynamicResource VolumeToggleButton}"
+                              Click="CbVolume_Click">
+                </ToggleButton>
+            </StatusBarItem>
+            <StatusBarItem Grid.Column="4">
+                <Slider Name="sliVolume"
+                        Focusable="False"
+                        IsMoveToPointEnabled="True"
+                        Maximum="1"
+                        Style="{StaticResource Horizontal_Slider}"
+                        IsEnabled="{Binding ElementName=MediaPlayer, Path=IsMuted, Converter={StaticResource InverseBooleanConverter}}"
+                        Value="{Binding ElementName=MediaPlayer, Path=Volume}"
+                        ValueChanged="SliVolume_ValueChanged" Margin="0,0,5,0"/>
+            </StatusBarItem>
+        </StatusBar>
+    </Grid>
+</Window>

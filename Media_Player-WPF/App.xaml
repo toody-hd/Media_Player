@@ -1,0 +1,19 @@
+﻿<Application x:Class="Media_Player_WPF.App"
+             xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+             xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+             xmlns:local="clr-namespace:Media_Player_WPF"
+             Startup="App_Startup"
+             StartupUri="MainWindow.xaml">
+    
+    <Application.Resources>
+        <ResourceDictionary>
+            <ResourceDictionary.MergedDictionaries>
+                <ResourceDictionary Source="Styles/FontIcon.xaml"/>
+                <ResourceDictionary Source="Styles/CustomSlider.xaml"/>
+                <ResourceDictionary Source="Styles/CustomToggleButton.xaml"/>
+                <ResourceDictionary Source="Styles/CustomButton.xaml"/>
+                <ResourceDictionary Source="Animations/OverlayAnim.xaml"/>
+            </ResourceDictionary.MergedDictionaries>
+        </ResourceDictionary>
+    </Application.Resources>
+</Application>
